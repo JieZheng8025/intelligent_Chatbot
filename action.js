@@ -3,38 +3,46 @@ var messages = [], //array that hold the record of each string in chat
   botMessage = "", //var keeps track of what the chatbot is going to say
   botName = 'Chatbot', //name of the chatbot
   talking = true; //when false the speach function doesn't work
+
+
+  
 //
-//
-//****************************************************************
-//****************************************************************
-//****************************************************************
-//****************************************************************
-//****************************************************************
-//****************************************************************
-//****************************************************************
 //edit this function to change what the chatbot says
 function chatbotResponse() {
   talking = true;
   botMessage = "I'm confused"; //the default message
 
-  if (lastUserMessage === 'hi' || lastUserMessage =='hello') {
-    const hi = ['hi','howdy','hello']
-    botMessage = hi[Math.floor(Math.random()*(hi.length))];;
+  // send request
+  // HTTP Request
+  var xhr = new XMLHttpRequest();
+  xhr.open(
+    'POST',
+    'https://17cgn1zz8h.execute-api.us-east-2.amazonaws.com/dev/chatbot',
+    true
+  )
+  // xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.onload = function () {
+    var text = xhr.responseText;
+    botMessage = JSON.parse(text);
+    update(botMessage);
+    console.log(botMessage);
   }
-
-  if (lastUserMessage === 'name') {
-    botMessage = 'My name is ' + botName;
-  }
+  xhr.send(JSON.stringify(
+    {
+      "messages": [
+        {
+          "type": "string",
+          "unstructured": {
+            "id": "zz257",
+            "text": lastUserMessage,
+            "timestamp": "12-21"
+          }
+        }
+      ]
+    }
+  ))
+  return botMessage;
 }
-//****************************************************************
-//****************************************************************
-//****************************************************************
-//****************************************************************
-//****************************************************************
-//****************************************************************
-//****************************************************************
-//
-//
 //
 //this runs each time enter is pressed.
 //It controls the overall input and output
@@ -50,15 +58,19 @@ function newEntry() {
     //Speech(lastUserMessage);  //says what the user typed outloud
     //sets the variable botMessage in response to lastUserMessage
     chatbotResponse();
-    //add the chatbot's name and message to the array messages
-    messages.push("<b>" + botName + ":</b> " + botMessage);
-    // says the message using the text to speech function written below
-    Speech(botMessage);
-    //outputs the last few array elements of messages to html
-    for (var i = 1; i < 8; i++) {
-      if (messages[messages.length - i])
-        document.getElementById("chatlog" + i).innerHTML = messages[messages.length - i];
-    }
+  }
+}
+
+function update(event, statusCode) {
+  //add the chatbot's name and message to the array messages
+  let newMessage = event.body;
+  messages.push("<b>" + botName + ":</b> " + newMessage);
+  // says the message using the text to speech function written below
+  // Speech(botMessage);
+  //outputs the last few array elements of messages to html
+  for (var i = 1; i < 8; i++) {
+    if (messages[messages.length - i])
+      document.getElementById("chatlog" + i).innerHTML = messages[messages.length - i];
   }
 }
 
