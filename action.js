@@ -1,46 +1,48 @@
 var messages = [], //array that hold the record of each string in chat
-  lastUserMessage = "", //keeps track of the most recent input string from the user
-  botMessage = "", //var keeps track of what the chatbot is going to say
+  lastUserMessage = '', //keeps track of the most recent input string from the user
+  botMessage = '', //var keeps track of what the chatbot is going to say
   botName = 'Chatbot', //name of the chatbot
   talking = true; //when false the speach function doesn't work
 
 
   
-//
+// set API_KEY
+var apigClient = apigClientFactory.newClient({
+  accessKey: 'xv3tkhkbci',
+  secretKey: 'd9VSazJFtR6TbtRsbyqHy5PYEjEsaGNm56df6paU'
+});
+
+
+
 //edit this function to change what the chatbot says
 function chatbotResponse() {
   talking = true;
-  botMessage = "I'm confused"; //the default message
+  botMessage = ''; //the default message
 
-  // send request
-  // HTTP Request
-  var xhr = new XMLHttpRequest();
-  xhr.open(
-    'POST',
-    'https://17cgn1zz8h.execute-api.us-east-2.amazonaws.com/dev/chatbot',
-    true
-  )
-  // xhr.setRequestHeader("Content-Type", "application/json");
-  xhr.onload = function () {
-    var text = xhr.responseText;
-    botMessage = JSON.parse(text);
-    update(botMessage);
-    console.log(botMessage);
+  var params = {
   }
-  xhr.send(JSON.stringify(
-    {
-      "messages": [
-        {
-          "type": "string",
-          "unstructured": {
-            "id": "zz257",
-            "text": lastUserMessage,
-            "timestamp": "12-21"
-          }
+
+  var body = {
+    "messages": [
+      {
+        "type": "string",
+        "unstructured": {
+          "id": "zz257",
+          "text": lastUserMessage,
+          "timestamp": "12-21"
         }
-      ]
-    }
-  ))
+      }
+    ]
+  }
+
+  apigClient.chatbotPost(params, body).then(function(result) {
+    console.log("succcess, " + JSON.stringify(result.data.body));
+    update(result.data);
+
+  }).catch(function(error) {
+    console.log( error);
+  })
+
   return botMessage;
 }
 //
@@ -55,7 +57,6 @@ function newEntry() {
     document.getElementById("chatbox").value = "";
     //adds the value of the chatbox to the array messages
     messages.push(lastUserMessage);
-    //Speech(lastUserMessage);  //says what the user typed outloud
     //sets the variable botMessage in response to lastUserMessage
     chatbotResponse();
   }
@@ -71,22 +72,6 @@ function update(event, statusCode) {
   for (var i = 1; i < 8; i++) {
     if (messages[messages.length - i])
       document.getElementById("chatlog" + i).innerHTML = messages[messages.length - i];
-  }
-}
-
-//text to Speech
-//https://developers.google.com/web/updates/2014/01/Web-apps-that-talk-Introduction-to-the-Speech-Synthesis-API
-function Speech(say) {
-  if ('speechSynthesis' in window && talking) {
-    var utterance = new SpeechSynthesisUtterance(say);
-    //msg.voice = voices[10]; // Note: some voices don't support altering params
-    //msg.voiceURI = 'native';
-    //utterance.volume = 1; // 0 to 1
-    //utterance.rate = 0.1; // 0.1 to 10
-    //utterance.pitch = 1; //0 to 2
-    //utterance.text = 'Hello World';
-    //utterance.lang = 'en-US';
-    speechSynthesis.speak(utterance);
   }
 }
 
