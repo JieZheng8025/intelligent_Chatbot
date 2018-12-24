@@ -8,11 +8,8 @@ var messages = [], //array that hold the record of each string in chat
   
 // set API_KEY
 var apigClient = apigClientFactory.newClient({
-  accessKey: 'xv3tkhkbci',
-  secretKey: 'd9VSazJFtR6TbtRsbyqHy5PYEjEsaGNm56df6paU'
+  apiKey: 'BFyFwtwVbS9WpWjwbJRW55ViG0Oc0QoJ2FbcpUdU'
 });
-
-
 
 //edit this function to change what the chatbot says
 function chatbotResponse() {
@@ -45,7 +42,7 @@ function chatbotResponse() {
 
   return botMessage;
 }
-//
+
 //this runs each time enter is pressed.
 //It controls the overall input and output
 function newEntry() {
