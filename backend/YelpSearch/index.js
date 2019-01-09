@@ -63,8 +63,8 @@ function receiveMess(event) {
             
             const order = message.messageAttributes;
             console.log("order: == " + JSON.stringify(order));
-            const location = order.location.stringValue;
-            const cuisine = order.cuisine.stringValue;
+            const location = order.location;
+            const cuisine = order.cuisine;
             names.push(cuisine); 
             
             YelpSearch(location, cuisine);
