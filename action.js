@@ -8,7 +8,7 @@ var messages = [], //array that hold the record of each string in chat
   
 // set API_KEY
 var apigClient = apigClientFactory.newClient({
-  apiKey: 'BFyFwtwVbS9WpWjwbJRW55ViG0Oc0QoJ2FbcpUdU'
+  apiKey: 'KfDuP9leEoOirOCnDuP57bMJgedowx4pRT7B8320'
 });
 
 //edit this function to change what the chatbot says
