@@ -6,8 +6,12 @@
   <title>smart chat robot</title>
   <link rel="stylesheet" type="text/css" href="layout.css">
 
+  <script src="js/aws-cognito-sdk.min.js"></script>
+  <script src="js/amazon-cognito-auth.min.js"></script>
+
 </head>
-<body>
+<body onload="init()">
+<div id='loginform'></div>
 <div id='bodybox'>
   <div id='chatborder'>
     <p id="chatlog7" class="chatlog">&nbsp;</p>
@@ -36,6 +40,8 @@
 <script type="text/javascript" src="apiGateway-js-sdk/lib/apiGatewayCore/utils.js"></script>
 <script type="text/javascript" src="apiGateway-js-sdk/apigClient.js"></script>
 
+<script type="text/javascript" src="login.js"></script>
+<script type="text/javascript" src="config.js"></script>
 <script type="text/javascript" src="action.js"></script>
 
 
