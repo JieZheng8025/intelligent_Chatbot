@@ -3,7 +3,7 @@
 
 var AWS = require('aws-sdk');
 AWS.config.update({
-    region: "us-east-2"
+    region: "us-east-1"
 });
 
 const yelp = require('yelp-fusion');
@@ -12,7 +12,7 @@ const client = yelp.client('8hC_sGN0GckT9Z8o-ANzt2FSBqE7Dwwomq333Ko-RORokTXT-6wf
 exports.handler = (event, context, callback) => {
     var restaurant = "";
     console.log("event", event);
-    receiveMess(event);
+    receiveSQSMess(event);
 };
 
 function YelpSearch(_location, _cuisine) {
@@ -22,21 +22,90 @@ function YelpSearch(_location, _cuisine) {
         categories: _cuisine
         }).then(result => {
             const restaurant = result.jsonBody.businesses.slice(0,5);
+            // sendMessage();
             loadData(restaurant);
+            
             // const response = {
             //     statusCode: 200,
             //     body: JSON.stringify(restaurant),
             // };
              console.log('restaurant: ' + JSON.stringify(restaurant[0]));
             // callback(null, response);
+            
+            const customerEmail = "xysu2017@outlook.com";
+            sendSES(customerEmail, restaurant);
+            
       }).catch(e => {
         console.log("Yelp Searching failed!"); 
         console.log('err:' + e);
         // callback(e);
       });
+    //   sendMessage();
+    // sendSNSConfirmation();
+    // listSubscrips();
+    //sendSNS(" ");
 }
 
-function receiveMess(event) {
+var sns = new AWS.SNS({region: 'us-east-1'});
+var ses = new AWS.SES({apiVersion: '2010-12-01'});
+
+var sendSES = function(user_email, restaurant) {
+    const sourceEmail = "zhishang99@gmail.com";
+    var params = {
+        Destination: {
+            ToAddresses: [
+                user_email
+            ] 
+        },
+        Message: {
+            Body: {
+                Html: {
+                    Charset: "UTF-8", 
+                    Data: JSON.stringify(restaurant)
+                }, 
+                Text: {
+                    Charset: "UTF-8", 
+                    Data: "This is the message body in text format."
+                }
+            },
+            Subject: {
+                Charset: "UTF-8", 
+                Data: "Your cuisine choice from AICustomerService!"
+            }
+        },
+        Source: sourceEmail
+    };
+    
+    ses.sendEmail(params, function(err, data) {
+        if (err) {
+            console.log("Send email failed. ", err);
+        }else {
+            console.log("Send email succeed! " + JSON.stringify(data));
+        }
+    })
+}
+
+var sendSNS = function(message) {
+    
+    const email = "zz2578@columbia.edu"
+    var paramsSNS = {
+        Message: "test 8",
+        Subject: 'TestSNS test 8',
+        //TopicArn: "arn:aws:sns:us-east-1:105787838877:CuisineRecommendation",
+        TargetArn: 'arn:aws:sns:us-east-1:105787838877:CuisineRecommendation:952714d2-42c4-4838-b5b7-fec821046e3b'
+    };
+    sns.publish(paramsSNS, function(err, data) {
+        if (err) {
+            console.log("sns failed, " + err)
+        } else {
+            console.log("sns succeed! " + JSON.stringify(data))
+        }
+    })
+}
+
+
+
+function receiveSQSMess(event) {
     try{
         // var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
         // var queueURL = "https://sqs.us-east-2.amazonaws.com/105787838877/OrderQueue";
@@ -63,8 +132,8 @@ function receiveMess(event) {
             
             const order = message.messageAttributes;
             console.log("order: == " + JSON.stringify(order));
-            const location = order.location;
-            const cuisine = order.cuisine;
+            const location = order.Location.stringValue;
+            const cuisine = order.Cuisine.stringValue;
             names.push(cuisine); 
             
             YelpSearch(location, cuisine);
