@@ -1,55 +1,57 @@
 'use strict';
 
-
 var AWS = require('aws-sdk');
 AWS.config.update({
     region: "us-east-1"
 });
+var sns = new AWS.SNS({region: 'us-east-1'});
+var ses = new AWS.SES({apiVersion: '2010-12-01'});
 
 const yelp = require('yelp-fusion');
-const client = yelp.client('8hC_sGN0GckT9Z8o-ANzt2FSBqE7Dwwomq333Ko-RORokTXT-6wf2kPfGaWmisLhTiHhKsbl_2AIjhLVf67TeGr0IzqXwLVdvQU82EGVfVlyqmAAov-9K3nVpFQhXHYx');
+const YELP_API_KEY = '8hC_sGN0GckT9Z8o-ANzt2FSBqE7Dwwomq333Ko-RORokTXT-6wf2kPfGaWmisLhTiHhKsbl_2AIjhLVf67TeGr0IzqXwLVdvQU82EGVfVlyqmAAov-9K3nVpFQhXHYx';
+const client = yelp.client(YELP_API_KEY);
 
 exports.handler = (event, context, callback) => {
     var restaurant = "";
     console.log("event", event);
+    
+    // receive the message from SQS queue
     receiveSQSMess(event);
 };
 
-function YelpSearch(_location, _cuisine) {
-    console.log("Yelp Searching: {location: ", _location, " cuisine: ", _cuisine);
+/** 
+ * Use Yelp Fusion API to search the restaurants
+ * @param _location: the location of user want to have the meal around 
+ * @param _cuisine: the cuisine type
+ * @param _email: the user email, required by SES service
+*/
+function YelpSearch(_location, _cuisine, _email) {
+    console.log("Yelp Searching: {location: ", _location, " cuisine: ", _cuisine, " email: ", _email);
     client.search({
         location: _location,
         categories: _cuisine
         }).then(result => {
             const restaurant = result.jsonBody.businesses.slice(0,5);
-            // sendMessage();
-            loadData(restaurant);
             
-            // const response = {
-            //     statusCode: 200,
-            //     body: JSON.stringify(restaurant),
-            // };
-             console.log('restaurant: ' + JSON.stringify(restaurant[0]));
-            // callback(null, response);
+            // save the search results to DynamoDB 
+            saveToDynamoDB(restaurant);
+
+            console.log('restaurant: ' + JSON.stringify(restaurant[0]));
             
-            const customerEmail = "xysu2017@outlook.com";
-            sendSES(customerEmail, restaurant);
+            // use SES service to send restaurant results to the user by email
+            sendSES(_email, restaurant);
             
       }).catch(e => {
-        console.log("Yelp Searching failed!"); 
-        console.log('err:' + e);
-        // callback(e);
+        console.log("Yelp Searching failed! ", e); 
       });
-    //   sendMessage();
-    // sendSNSConfirmation();
-    // listSubscrips();
-    //sendSNS(" ");
 }
 
-var sns = new AWS.SNS({region: 'us-east-1'});
-var ses = new AWS.SES({apiVersion: '2010-12-01'});
-
-var sendSES = function(user_email, restaurant) {
+/**
+ * Use SES service to send email.
+ * @param user_email:   user's email, which need to be validated in sandbox mode;
+ * @param restaurants:  the restaurant results to send to the user
+*/
+var sendSES = function(user_email, restaurants) {
     const sourceEmail = "zhishang99@gmail.com";
     var params = {
         Destination: {
@@ -61,7 +63,7 @@ var sendSES = function(user_email, restaurant) {
             Body: {
                 Html: {
                     Charset: "UTF-8", 
-                    Data: JSON.stringify(restaurant)
+                    Data: buildEmailBody(restaurants)
                 }, 
                 Text: {
                     Charset: "UTF-8", 
@@ -85,85 +87,57 @@ var sendSES = function(user_email, restaurant) {
     })
 }
 
-var sendSNS = function(message) {
+/**
+* Helper function that help build the email content.
+* @param restaurants: the restaurant result to be included in the email
+*/
+var buildEmailBody = function(restaurants) {
     
-    const email = "zz2578@columbia.edu"
-    var paramsSNS = {
-        Message: "test 8",
-        Subject: 'TestSNS test 8',
-        //TopicArn: "arn:aws:sns:us-east-1:105787838877:CuisineRecommendation",
-        TargetArn: 'arn:aws:sns:us-east-1:105787838877:CuisineRecommendation:952714d2-42c4-4838-b5b7-fec821046e3b'
-    };
-    sns.publish(paramsSNS, function(err, data) {
-        if (err) {
-            console.log("sns failed, " + err)
-        } else {
-            console.log("sns succeed! " + JSON.stringify(data))
-        }
+    var body = ""
+    restaurants.forEach(function(restaurant) {
+        body += `<h3>${restaurant.name}</h3><div>Link: ${restaurant.url}</div><img src=${restaurant.image_url} height="250">`
     })
+    
+    const content = `<html><head></head><body>${body}</body>`
+    return content
 }
 
-
-
+/**
+* Process the SQS message. 
+* Each time the SQS receive a new message, it will transmit it to this lambda function as an event.
+* @param event: the event source from SQS
+*/
 function receiveSQSMess(event) {
     try{
-        // var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
-        // var queueURL = "https://sqs.us-east-2.amazonaws.com/105787838877/OrderQueue";
-        // var params = {
-        //     AttributeNames: [
-        //         "location"
-        //     ],
-        //     MaxNumberOfMessages: 1,
-        //     MessageAttributeNames: [
-        //       "All"
-        //     ],
-        //     QueueUrl: queueURL,
-        //     VisibilityTimeout: 60,
-        //     WaitTimeSeconds: 0
-        // };
-        // console.log("starting");
-        
-        // console.log("data ", event); 
         console.log("start receiving message " + event.Records.length);
         var names = [];
         for (const message of event.Records) {
-            const messageBody = message.body;
-            console.log("New message: " + messageBody);
-            
             const order = message.messageAttributes;
             console.log("order: == " + JSON.stringify(order));
             const location = order.Location.stringValue;
             const cuisine = order.Cuisine.stringValue;
+            const email = order.Email.stringValue;
             names.push(cuisine); 
             
-            YelpSearch(location, cuisine);
-            
-            // var queueURL = "https://sqs.us-east-2.amazonaws.com/105787838877/OrderQueue";
-            // var deleteParams = {
-            //     QueueUrl: queueURL,
-            //     ReceiptHandle: message.ReceiptHandle
-            // };
-            // sqs.deleteMessage(deleteParams, function(err, data) {
-            // if (err) {
-            //     console.log("Delete Error", err);
-            // } else {
-            //     console.log("Message Deleted", data);
-            // }});
+            // YelpSearch function to do search 
+            YelpSearch(location, cuisine, email);
         }
         console.log("ending");  
-    } catch (error) {
-        console.log(error);
-        // callback(error);
+    } catch (err) {
+        console.log("Receive SQS message error", err);
     }
-    
-    
 }
 
-function loadData(data){
+/**
+* Save the restaurant data to DynamoDB
+* @param data: the data to be saved. It has certain data model.
+*/
+function saveToDynamoDB(data){
     AWS.config.update({
         region: "us-east-2",
         endpoint: "dynamodb.us-east-2.amazonaws.com"
     });
+    
     function getAddress(result){
         var addr = result.location.address1;
         if (result.location.address2 === null || result.location.address2 === "")
@@ -173,9 +147,9 @@ function loadData(data){
             return addr;
         return addr + result.location.address3;
     }
+    
     var docClient = new AWS.DynamoDB.DocumentClient();
     data.forEach(function(restaurant) {
-
         var params = {
             TableName: "YelpRestaurant",
             Item: {
@@ -186,9 +160,11 @@ function loadData(data){
             }
         };
 
-        // The remaining keys are different form restaurant to restaurant
-        // Therefore, we examine the attributes one by one
-        // Be careful: An attributeValue may not contain an empty string
+        /** 
+        * The remaining keys are different form restaurant to restaurant
+        * Therefore, we examine the attributes one by one
+        * Be careful: An attributeValue may not contain an empty string
+        */
         if (restaurant.alias && restaurant.alias != ""){
             params.Item.alias = restaurant.alias;
         }
@@ -238,7 +214,6 @@ function loadData(data){
             params.Item.transactions = [];
             params.Item.transactions = params.Item.transactions.concat(restaurant.transactions);
         }
-
 
         docClient.put(params, function(err, data) {
             if (err) {
