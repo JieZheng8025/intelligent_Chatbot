@@ -3,17 +3,39 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <title>smart chat robot</title>
+  <title>smart chat robot app 4</title>
   <link rel="stylesheet" type="text/css" href="layout.css">
 
-  <script src="js/aws-cognito-sdk.min.js"></script>
+  <!-- <script src="js/aws-cognito-sdk.js"></script> -->
+  <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
   <script src="js/amazon-cognito-auth.min.js"></script>
+  
+  <script type="text/javascript" src="config.js"></script>
+  <script type="text/javascript" src="login.js"></script>
+  
+  <script type="text/javascript" src="apiGateway-js-sdk/lib/axios/dist/axios.standalone.js"></script>
+  <script type="text/javascript" src="apiGateway-js-sdk/lib/CryptoJS/rollups/hmac-sha256.js"></script>
+  <script type="text/javascript" src="apiGateway-js-sdk/lib/CryptoJS/rollups/sha256.js"></script>
+  <script type="text/javascript" src="apiGateway-js-sdk/lib/CryptoJS/components/hmac.js"></script>
+  <script type="text/javascript" src="apiGateway-js-sdk/lib/CryptoJS/components/enc-base64.js"></script>
+  <script type="text/javascript" src="apiGateway-js-sdk/lib/url-template/url-template.js"></script>
+  <script type="text/javascript" src="apiGateway-js-sdk/lib/apiGatewayCore/sigV4Client.js"></script>
+  <script type="text/javascript" src="apiGateway-js-sdk/lib/apiGatewayCore/apiGatewayClient.js"></script>
+  <script type="text/javascript" src="apiGateway-js-sdk/lib/apiGatewayCore/simpleHttpClient.js"></script>
+  <script type="text/javascript" src="apiGateway-js-sdk/lib/apiGatewayCore/utils.js"></script>
+  <script type="text/javascript" src="apiGateway-js-sdk/apigClient.js"></script>
+  
+  <script type="text/javascript" src="action.js"></script>
 
 </head>
 <body onload="init()">
+<!-- <body> -->
 <div id='loginform'></div>
+
 <div id='bodybox'>
+  <h2 align="center">Dining Service Chatbot</h2>
   <div id='chatborder'>
+    
     <p id="chatlog7" class="chatlog">&nbsp;</p>
     <p id="chatlog6" class="chatlog">&nbsp;</p>
     <p id="chatlog5" class="chatlog">&nbsp;</p>
@@ -25,28 +47,8 @@
   </div>
   <br>
   <br>
-  <center><img src="https://lilgreenland.github.io/images/BMO.jpg" align="middle"></center>
+  <center><img src="https://cdn-images-1.medium.com/max/880/0*oz2e-hQtsHOWzoB4." height="200" width="400"  align="middle"></center>
 </div>
-
-<script type="text/javascript" src="apiGateway-js-sdk/lib/axios/dist/axios.standalone.js"></script>
-<script type="text/javascript" src="apiGateway-js-sdk/lib/CryptoJS/rollups/hmac-sha256.js"></script>
-<script type="text/javascript" src="apiGateway-js-sdk/lib/CryptoJS/rollups/sha256.js"></script>
-<script type="text/javascript" src="apiGateway-js-sdk/lib/CryptoJS/components/hmac.js"></script>
-<script type="text/javascript" src="apiGateway-js-sdk/lib/CryptoJS/components/enc-base64.js"></script>
-<script type="text/javascript" src="apiGateway-js-sdk/lib/url-template/url-template.js"></script>
-<script type="text/javascript" src="apiGateway-js-sdk/lib/apiGatewayCore/sigV4Client.js"></script>
-<script type="text/javascript" src="apiGateway-js-sdk/lib/apiGatewayCore/apiGatewayClient.js"></script>
-<script type="text/javascript" src="apiGateway-js-sdk/lib/apiGatewayCore/simpleHttpClient.js"></script>
-<script type="text/javascript" src="apiGateway-js-sdk/lib/apiGatewayCore/utils.js"></script>
-<script type="text/javascript" src="apiGateway-js-sdk/apigClient.js"></script>
-
-<script type="text/javascript" src="login.js"></script>
-<script type="text/javascript" src="config.js"></script>
-<script type="text/javascript" src="action.js"></script>
-
-
-
-
 
 </body>
 </html>

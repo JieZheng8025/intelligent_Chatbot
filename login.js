@@ -2,10 +2,9 @@ var gCognitoAuth;
 
 function init() {
   gCognitoAuth = new AmazonCognitoIdentity.CognitoAuth(COGNITO_AUTH_DATA);
-  gCognitoAuth.parseCognitoWebResponse(location.href);
+  gCognitoAuth.parseCognitoWebResponse(window.location.href);
 
   checkLogin();
-  // document.getElementById('loggedInUser').textContent = gCognitoAuth.getUsername();
 
   if (!localStorage.getItem('client_id')) {
     localStorage.setItem('client_id', uuidv4());
@@ -30,8 +29,7 @@ function refreshData() {
 
 function getData(idToken) {
   var xmlhttp = new XMLHttpRequest();
-  var url = API_URL + '?id=' + localStorage.getItem('client_id') + "&redirect_uri=" + COGNITO_AUTH_DATA.RedirectUriSignIn;
-
+  var url =    + '?id=' + localStorage.getItem('client_id');
   xmlhttp.open('GET', url);
   xmlhttp.setRequestHeader('Authorization', idToken);
   xmlhttp.onload = function() {
@@ -47,7 +45,7 @@ function getData(idToken) {
 
 
 function updateView(data) {
-  // Your code here.
+  // update view
 }
 
 

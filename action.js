@@ -26,13 +26,14 @@ function chatbotResponse() {
         "unstructured": {
           "id": "zz257",
           "text": lastUserMessage,
-          "timestamp": "12-21"
+          "timestamp": Date.now()
         }
       }
     ]
   }
 
   apigClient.chatbotPost(params, body).then(function(result) {
+    console.log("result is " + JSON.stringify(result))
     console.log("succcess, " + JSON.stringify(result.data.body));
     update(result.data);
 
