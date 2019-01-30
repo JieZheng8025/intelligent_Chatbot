@@ -1,3 +1,11 @@
+## Project structure
+
+![alt text](misc/Structure.png)
+
+## Demo
+
+- **Youtube**: https://www.youtube.com/watch?v=AoYBiPv-gl8
+
 ## What we do
 
 This is an intelligent dining service chatbot. The main purpose is to serve the user intent on finding several places recommendation with specific cuisine type. 
@@ -5,14 +13,6 @@ This is an intelligent dining service chatbot. The main purpose is to serve the 
 After the bot collects the necessary information like location, cuisine and user's email address, the user will receive an email in seconds with nearby dining places recommendation.
 
 Before you use the chatbot service, you need to register an account for identification purpose.
-
-## Demo
-
-- **Youtube**: https://www.youtube.com/watch?v=AoYBiPv-gl8
-
-## Project structure
-
-![alt text](misc/Structure.png)
 
 #### - Cognito
 
