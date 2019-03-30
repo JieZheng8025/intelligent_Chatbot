@@ -1,3 +1,4 @@
+[![HitCount](http://hits.dwyl.io/JieZheng8025/intelligent_Chatbot.svg)](http://hits.dwyl.io/JieZheng8025/intelligent_Chatbot)
 ## Project structure
 
 ![alt text](misc/Structure.png)
@@ -58,5 +59,3 @@ Yelp Fusion API provides convenient RESTful API to search restaurants with custo
 Amazon SES is a convenient service to send email to users. 
 
 Please notice that for developers in the sandbox mode, they can only send email to those email addresses that have been validated. 
-
-[![HitCount](http://hits.dwyl.io/JieZheng8025/intelligent_Chatbot.svg)](http://hits.dwyl.io/JieZheng8025/intelligent_Chatbot)
